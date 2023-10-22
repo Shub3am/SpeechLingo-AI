@@ -4,11 +4,12 @@ const multer = require('multer')
 const cors = require('cors');
 const {exec} = require("child_process");
 const fs = require('fs');
-const SpeechToTextV1 = require('ibm-watson/speech-to-text/v1');
+const LanguageTranslatorV3 = require('ibm-watson/language-translator/v3');
 const { IamAuthenticator } = require('ibm-watson/auth');
 const { stdout, stderr } = require('process');
 const cloudinary = require("cloudinary")
 const { Deepgram } = require("@deepgram/sdk");
+const TextToSpeechV1 = require('ibm-watson/text-to-speech/v1');
 const deepgram = new Deepgram("ad55fc041228016f83fcdd26a45aaaab226bf83c");
 cloudinary.config({
     cloud_name: 'daglt9noz',
@@ -53,10 +54,7 @@ app.post('/upload', function(req, res) {
       })
     })
     setTimeout(()=> {
-        const speechToText = new SpeechToTextV1({
-        authenticator: new IamAuthenticator({ apikey: '6n9MEXnwouxwdEqIj6M5Z7-LGl-26ZstewAcJolGMsP_' }),
-        serviceUrl: 'https://api.eu-gb.speech-to-text.watson.cloud.ibm.com/instances/6e46f3f2-6692-455e-a883-050814e39cbc'
-      });
+
       console.log(`http://localhost:8000/${file.path}.wav`)
       const params = {
         // From file
@@ -75,8 +73,54 @@ app.post('/upload', function(req, res) {
 	})
 	.then((response) => {
 
-		console.log(response, { depth: null });
+		// console.log(response, { depth: null });
         let x = response.results.channels[0].alternatives[0].transcript;
+        const languageTranslator = new LanguageTranslatorV3({
+          version: '2018-05-01',
+          authenticator: new IamAuthenticator({
+            apikey: 'UTVwEQsDyC_FtyuamESUK4tlORbaFIHEUkJOgU5psFE-',
+          }),
+          serviceUrl: 'https://api.eu-gb.language-translator.watson.cloud.ibm.com/instances/9034450d-3fb3-4a82-bae5-ac8f42db7530',
+        });
+        const translateParams = {
+          text: x,
+          modelId: 'en-es',
+        };
+        languageTranslator.translate(translateParams)
+  .then(translationResult => {
+    const translated = translationResult.result.translations[0].translation
+    const textToSpeech = new TextToSpeechV1({
+      authenticator: new IamAuthenticator({
+        apikey: 'GnIgnDJFfbhjPbNItaD40W3fqr8y3QywHcFZpobycvfD',
+      }),
+      serviceUrl: 'https://api.eu-gb.text-to-speech.watson.cloud.ibm.com/instances/06539cc9-9b0e-4b23-b5fc-f76fe5e6c381',
+    });
+    console.log(translated)
+    const synthesizeParams = {
+      text: String(translated),
+      accept: 'audio/wav',
+      voice: 'en-US_AllisonV3Voice',
+    };
+    textToSpeech.synthesize(synthesizeParams)
+  .then(response => {
+    // The following line is necessary only for
+    // wav formats; otherwise, `response.result`
+    // can be directly piped to a file.
+    return textToSpeech.repairWavHeaderStream(response.result);
+  })
+  .then(buffer => {
+    fs.writeFileSync('hello_worlds.wav', buffer);
+    
+  })
+  .catch(err => {
+    console.log('error:', err);
+  });
+    // let x = JSON.stringify(translationResult, null, 2)
+
+  })
+  .catch(err => {
+    console.log('error:', err);
+  });
 
 	})
 	.catch((err) => {
