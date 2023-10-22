@@ -1,0 +1,8 @@
+deepgram_api = ""
+IBM_watson_text_to_speech_api = ""
+IBM_watson_text_to_speech_service_url = ""
+IBM_watson_language_translator_api = ""
+IBM_watson_language_translator_service_url = ""
+cloudinary_cloud_name = ""
+cloudinary_key = ""
+cloudinary_secret = ""

@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const multer = require('multer')
 const cors = require('cors');
+require('dotenv').config()
 const {exec} = require("child_process");
 const fs = require('fs');
 const LanguageTranslatorV3 = require('ibm-watson/language-translator/v3');
@@ -10,11 +11,11 @@ const { stdout, stderr } = require('process');
 const cloudinary = require("cloudinary")
 const { Deepgram } = require("@deepgram/sdk");
 const TextToSpeechV1 = require('ibm-watson/text-to-speech/v1');
-const deepgram = new Deepgram("ad55fc041228016f83fcdd26a45aaaab226bf83c");
+const deepgram = new Deepgram(process.env.deepgram_api);
 cloudinary.config({
-    cloud_name: 'daglt9noz',
-    api_key: '438713331415379',
-    api_secret: 'na3POCIYnTz9_lONHMr3WP8wklo'
+    cloud_name: process.env.cloudinary.cloud_name,
+    api_key: process.env.cloudinary.key,
+    api_secret: process.env.cloudinary.secret,
   });
 app.use(cors())
 app.use(express.static('public'))
@@ -30,7 +31,6 @@ var storage = multer.diskStorage({
 var upload = multer({ storage: storage }).single('file')
 
 app.post('/upload', function(req, res) {
-    console.log("this got called")
      let file = null;
     upload(req, res, function (err) {
            if (err instanceof multer.MulterError) {
@@ -46,7 +46,7 @@ app.post('/upload', function(req, res) {
         }
         if (stderr) {
             // console.log(`stderr: ${stderr}`);
-            console.log("Transformed")
+            console.log("Transformed to /public/output.mp4")
             file = filer
             return;
         }
@@ -78,9 +78,9 @@ app.post('/upload', function(req, res) {
         const languageTranslator = new LanguageTranslatorV3({
           version: '2018-05-01',
           authenticator: new IamAuthenticator({
-            apikey: 'UTVwEQsDyC_FtyuamESUK4tlORbaFIHEUkJOgU5psFE-',
+            apikey: process.env.IBM_watson_language_translator_api,
           }),
-          serviceUrl: 'https://api.eu-gb.language-translator.watson.cloud.ibm.com/instances/9034450d-3fb3-4a82-bae5-ac8f42db7530',
+          serviceUrl: process.env.IBM_watson_language_translator_service_url,
         });
         const translateParams = {
           text: x,
@@ -91,9 +91,9 @@ app.post('/upload', function(req, res) {
     const translated = translationResult.result.translations[0].translation
     const textToSpeech = new TextToSpeechV1({
       authenticator: new IamAuthenticator({
-        apikey: 'GnIgnDJFfbhjPbNItaD40W3fqr8y3QywHcFZpobycvfD',
+        apikey: process.env.IBM_watson_text_to_speech_api,
       }),
-      serviceUrl: 'https://api.eu-gb.text-to-speech.watson.cloud.ibm.com/instances/06539cc9-9b0e-4b23-b5fc-f76fe5e6c381',
+      serviceUrl: process.env.IBM_watson_text_to_speech_service_url,
     });
     console.log(translated)
     const synthesizeParams = {
@@ -112,7 +112,6 @@ app.post('/upload', function(req, res) {
     fs.writeFileSync('translated.wav', buffer);
     
   }).then(x=> {
-    console.log("Called")
     console.log(file)
     const attach = exec(`ffmpeg -i ${file.path} -i translated.wav -map 0:v -map 1:a -c:v copy -shortest ./public/output.mp4`, (error, stdout, stderr) => {
       if (error) {
