@@ -1,4 +1,4 @@
-// File: /home/vshubham/web/frontend/app/layout.js
+// File: D:\empowering-communities\frontend\app\layout.js
 import * as entry from '../../../app/layout.js'
 import type { ResolvingMetadata } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

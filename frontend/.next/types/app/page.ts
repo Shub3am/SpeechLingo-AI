@@ -1,4 +1,4 @@
-// File: /home/vshubham/web/frontend/app/page.js
+// File: D:\empowering-communities\frontend\app\page.js
 import * as entry from '../../../app/page.js'
 import type { ResolvingMetadata } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

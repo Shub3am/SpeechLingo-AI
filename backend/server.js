@@ -121,6 +121,7 @@ app.post('/upload', function(req, res) {
       }
       if (stderr) {
           // console.log(`stderr: ${stderr}`);
+          res.send(`http://localhost:8000/public/output.mp4`)
           console.log("Transformed")
           return;
       }
