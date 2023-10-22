@@ -113,8 +113,8 @@ app.post('/upload', function(req, res) {
     
   }).then(x=> {
     console.log("Called")
-    console.log(file.path)
-    const attach = exec(`ffmpeg -i ${file.path} -i ./translated.wav -map 0:v -map 1:a -c:v copy -shortest output.mp4`, (error, stdout, stderr) => {
+    console.log(file)
+    const attach = exec(`ffmpeg -i ${file.path} -i translated.wav -map 0:v -map 1:a -c:v copy -shortest ./public/output.mp4`, (error, stdout, stderr) => {
       if (error) {
           console.log(`error: ${error.message}`);
           return;
