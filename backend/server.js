@@ -109,13 +109,29 @@ app.post('/upload', function(req, res) {
     return textToSpeech.repairWavHeaderStream(response.result);
   })
   .then(buffer => {
-    fs.writeFileSync('hello_worlds.wav', buffer);
+    fs.writeFileSync('translated.wav', buffer);
     
+  }).then(x=> {
+    console.log("Called")
+    console.log(file.path)
+    const attach = exec(`ffmpeg -i ${file.path} -i ./translated.wav -map 0:v -map 1:a -c:v copy -shortest output.mp4`, (error, stdout, stderr) => {
+      if (error) {
+          console.log(`error: ${error.message}`);
+          return;
+      }
+      if (stderr) {
+          // console.log(`stderr: ${stderr}`);
+          console.log("Transformed")
+          return;
+      }
+      console.log(`stdout: ${stdout}`);
+    })
   })
   .catch(err => {
     console.log('error:', err);
-  });
+  })
     // let x = JSON.stringify(translationResult, null, 2)
+
 
   })
   .catch(err => {
