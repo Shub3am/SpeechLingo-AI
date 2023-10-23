@@ -12,12 +12,14 @@ const { Deepgram } = require("@deepgram/sdk");
 const TextToSpeechV1 = require('ibm-watson/text-to-speech/v1');
 const deepgram = new Deepgram(process.env.deepgram_api);
 cloudinary.config({
-    cloud_name: process.env.cloudinary.cloud_name,
-    api_key: process.env.cloudinary.key,
-    api_secret: process.env.cloudinary.secret,
+    cloud_name: process.env.cloudinary_cloud_name,
+    api_key: process.env.cloudinary_key,
+    api_secret: process.env.cloudinary_secret,
   });
+
+  const SERVER_URL = `process.env.SERVER_URL:${process.env.PORT}`
 app.use(cors())
-app.use(express.static('public'))
+app.use(express.static('./public'))
 var storage = multer.diskStorage({
     destination: function (req, file, cb) {
     cb(null, 'public')
@@ -54,7 +56,7 @@ app.post('/upload', function(req, res) {
     })
     setTimeout(()=> {
 
-      console.log(`http://localhost:8000/${file.path}.wav`)
+      console.log(`http://${SERVER_URL}/${file.path}.wav`)
       const params = {
         // From file
         audio: fs.createReadStream(`${file.path}.wav`),
@@ -112,15 +114,14 @@ app.post('/upload', function(req, res) {
     
   }).then(x=> {
     console.log(file)
-    const attach = exec(`ffmpeg -i ${file.path} -i translated.wav -map 0:v -map 1:a -c:v copy -shortest ./public/output.mp4`, (error, stdout, stderr) => {
+    const attach = exec(`ffmpeg -i ${file.path} -i translated.wav -map 0:v -map 1:a -c:v copy -shortest ./public/${file.filename.split(".")[0]}_translated.mp4`, (error, stdout, stderr) => {
       if (error) {
           console.log(`error: ${error.message}`);
           return;
       }
       if (stderr) {
-          // console.log(`stderr: ${stderr}`);
-          res.send(`http://localhost:8000/public/output.mp4`)
           console.log("Transformed")
+          res.send(`http://${SERVER_URL}/${file.filename.split('.')[0]}_translated.mp4`)
           return;
       }
       console.log(`stdout: ${stdout}`);
