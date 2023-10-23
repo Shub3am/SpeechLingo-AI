@@ -7,7 +7,6 @@ const {exec} = require("child_process");
 const fs = require('fs');
 const LanguageTranslatorV3 = require('ibm-watson/language-translator/v3');
 const { IamAuthenticator } = require('ibm-watson/auth');
-const { stdout, stderr } = require('process');
 const cloudinary = require("cloudinary")
 const { Deepgram } = require("@deepgram/sdk");
 const TextToSpeechV1 = require('ibm-watson/text-to-speech/v1');
