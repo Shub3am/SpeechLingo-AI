@@ -17,7 +17,7 @@ cloudinary.config({
     api_secret: process.env.cloudinary_secret,
   });
 
-  const SERVER_URL = `process.env.SERVER_URL:${process.env.PORT}`
+  const SERVER_URL = `${process.env.SERVER_URL}:${process.env.PORT}`
 app.use(cors())
 app.use(express.static('./public'))
 var storage = multer.diskStorage({
@@ -111,17 +111,18 @@ app.post('/upload', function(req, res) {
   })
   .then(buffer => {
     fs.writeFileSync('translated.wav', buffer);
+    try {fs.unlinkSync("./public/output.mp4")} catch(e) {null}
     
   }).then(x=> {
     console.log(file)
-    const attach = exec(`ffmpeg -i ${file.path} -i translated.wav -map 0:v -map 1:a -c:v copy -shortest ./public/${file.filename.split(".")[0]}_translated.mp4`, (error, stdout, stderr) => {
+    const attach = exec(`ffmpeg -i ${file.path} -i translated.wav -map 0:v -map 1:a -c:v copy -shortest ./public/output.mp4`, (error, stdout, stderr) => {
       if (error) {
           console.log(`error: ${error.message}`);
           return;
       }
       if (stderr) {
           console.log("Transformed")
-          res.send(`http://${SERVER_URL}/${file.filename.split('.')[0]}_translated.mp4`)
+          res.send(`http://${SERVER_URL}/output.mp4`)
           return;
       }
       console.log(`stdout: ${stdout}`);
