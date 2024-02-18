@@ -3,4 +3,4 @@
 ### Theme: Accessible Education in rural areas.
 [![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/OSYk9KwAPjI/0.jpg)](https://www.youtube.com/watch?v=OSYk9KwAPjI)
 #### YouTube Video Demonstrating the Application
-#### By <a href="https://devpost.com/shubhamvishwakarma0604">Shubham</a>
+#### By <a href="https://www.linkedin.com/in/shubhamvs/">Shubham</a>
